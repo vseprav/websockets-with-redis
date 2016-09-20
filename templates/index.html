@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chat</title>
+</head>
+<body>
+
+<div class="messages"></div>
+<div>
+    <input id="add-message" type="text" name="message">
+    <input type="submit" value="Submit" onclick="sendMessage()">
+</div>
+
+<script>
+     var socket = new WebSocket("ws://localhost:8081/chat");
+     socket.onopen = function() {
+         console.log("Connected.");
+     };
+
+     socket.onclose = function(event) {
+         if (event.wasClean) {
+             console.log('Connection closed cleanly');
+         } else {
+             console.log('Broken connections');
+         }
+         console.log('Code: ' + event.code + ' reason: ' + event.reason);
+     };
+
+     socket.onmessage = function(event) {
+         console.log("Data " + event.data);
+         var messageTag = document.createElement("p");
+         messageTag.innerText = event.data;
+         document.querySelector('.messages').appendChild(messageTag);
+     };
+
+     socket.onerror = function(error) {
+         console.log("Error " + error.message);
+     };
+
+     function sendMessage() {
+         var message = document.querySelector('#add-message');
+         socket.send(message.value);
+         message.value = '';
+     }
+
+ </script>
+</body>
+</html>
